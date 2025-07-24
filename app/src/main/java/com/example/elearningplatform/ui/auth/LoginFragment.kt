@@ -40,8 +40,11 @@ class LoginFragment : Fragment() {
         vm.state.observe(viewLifecycleOwner) { res ->
             when (res) {
                 is Result.Loading -> binding.loginBtn.isEnabled = false
-                is Result.Success -> findNavController()
-                    .navigate(R.id.action_login_to_home)
+
+                is Result.Success -> {
+                    // use the ACTION id, not the fragment id
+                    findNavController().navigate(R.id.action_login_to_home)
+                }
 
                 is Result.Error -> {
                     binding.loginBtn.isEnabled = true

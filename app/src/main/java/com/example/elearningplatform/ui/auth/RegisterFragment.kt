@@ -41,9 +41,11 @@ class RegisterFragment : Fragment() {
         vm.state.observe(viewLifecycleOwner) { res ->
             when (res) {
                 is Result.Loading -> binding.registerBtn.isEnabled = false
+
                 is Result.Success -> findNavController()
-                    .navigate(R.id.action_register_to_home) // Pop to home
-                is Result.Error   -> {
+                    .navigate(R.id.action_register_to_login)   // ← go to Login, not Home
+
+                is Result.Error -> {
                     binding.registerBtn.isEnabled = true
                     binding.emailInputLayout.error = res.throwable.localizedMessage
                 }
