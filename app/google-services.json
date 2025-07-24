@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "757472076122",
+    "project_id": "e-learning-app3806",
+    "storage_bucket": "e-learning-app3806.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757472076122:android:3a785974de671d1bcc1363",
+        "android_client_info": {
+          "package_name": "com.example.elearningplatform"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDw5h6HgdkxtIWTQ_ev1f-cO8_PcdYZ01c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
