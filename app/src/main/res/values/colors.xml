@@ -2,4 +2,8 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_80">#CCFFFFFF</color>  <!-- 80% opacity -->
+    <color name="white_30">#4DFFFFFF</color>  <!-- 30% opacity -->
+    <color name="white_60">#99FFFFFF</color> <!-- 60% white -->
+
 </resources>
