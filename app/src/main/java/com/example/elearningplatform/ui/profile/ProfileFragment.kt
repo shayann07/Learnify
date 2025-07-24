@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,6 +47,9 @@ class ProfileFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
         }
 
+        // Initial state (maybe not needed but safe)
+        updateLessonsScheduledTitle()
+
         /* + Lesson */
         b.addLessonBtn.setOnClickListener {
             val title = b.lessonTitleEdit.text.toString().trim()
@@ -56,6 +60,7 @@ class ProfileFragment : Fragment() {
                 order = lessons.size, duration = 0
             )
             lessonAdapter.submit(lessons)
+            updateLessonsScheduledTitle()
             b.lessonTitleEdit.text!!.clear()
             b.lessonUrlEdit.text!!.clear()
         }
@@ -97,6 +102,13 @@ class ProfileFragment : Fragment() {
         b.freeSwitch.isChecked = true
         lessons.clear()
         lessonAdapter.submit(lessons)
+        updateLessonsScheduledTitle()
+    }
+
+    // Helper to show/hide the title based on lesson count
+    private fun updateLessonsScheduledTitle() {
+        b.lessonsScheduledTitle.visibility =
+            if (lessons.isNotEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {

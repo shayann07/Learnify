@@ -93,5 +93,5 @@
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.elearningplatform.ui.profile.ProfileFragment"
-        android:label="Profile" />
+        android:label="Admin Panel" />
 </navigation>

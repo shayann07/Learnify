@@ -3,6 +3,7 @@ package com.example.elearningplatform
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -43,6 +44,14 @@ class MainActivity : AppCompatActivity() {
             setOf(R.id.homeFragment)      // add more top-level IDs if needed
         )
 
+        // initial nav icon so it’s white even before first destination callback
+        val initialIcon = AppCompatResources.getDrawable(
+            this,
+            androidx.appcompat.R.drawable.abc_ic_ab_back_material
+        )
+        initialIcon?.setTint(getColor(android.R.color.white))
+        binding.toolbar.navigationIcon = initialIcon
+
         /* Wire ActionBar <-> NavController with that config */
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfig)
 
@@ -51,10 +60,23 @@ class MainActivity : AppCompatActivity() {
             binding.toolbar.visibility =
                 if (dest.id == R.id.loginFragment ||
                     dest.id == R.id.registerFragment ||
-                    dest.id == R.id.playerFragment)
+                    dest.id == R.id.playerFragment
+                )
                     View.GONE
                 else
                     View.VISIBLE
+
+            // Only set custom icon if "up" button is shown (not on home screen)
+            // inside destination listener
+            val topLevel = setOf(R.id.homeFragment)
+            if (!topLevel.contains(dest.id)) {
+                val navIcon = AppCompatResources.getDrawable(
+                    this,
+                    androidx.appcompat.R.drawable.abc_ic_ab_back_material
+                )
+                navIcon?.setTint(getColor(android.R.color.white))
+                binding.toolbar.navigationIcon = navIcon
+            }
         }
     }
 
