@@ -1,7 +1,9 @@
 package com.example.elearningplatform.ui.course
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -20,7 +22,12 @@ class CourseDetailFragment : Fragment() {
     private val args: CourseDetailFragmentArgs by navArgs()
     private val adapter = LessonAdapter { lesson ->
         val action = CourseDetailFragmentDirections
-            .actionCourseToPlayer(args.courseId, lesson.id, lesson.title)
+            .actionCourseToPlayer(
+                args.courseId,
+                lesson.id,
+                lesson.videoUrl,
+                lesson.title
+            )
         findNavController().navigate(action)
     }
 
@@ -43,10 +50,15 @@ class CourseDetailFragment : Fragment() {
                 is Result.Success -> {
                     binding.progress.hide(); adapter.submit(res.data)
                 }
-                is Result.Error -> { binding.progress.hide() }
+
+                is Result.Error -> {
+                    binding.progress.hide()
+                }
             }
         }
     }
 
-    override fun onDestroyView() { super.onDestroyView(); _binding = null }
+    override fun onDestroyView() {
+        super.onDestroyView(); _binding = null
+    }
 }

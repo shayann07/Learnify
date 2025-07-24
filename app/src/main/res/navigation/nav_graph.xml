@@ -82,6 +82,9 @@
             android:name="lessonId"
             app:argType="string" />
         <argument
+            android:name="videoUrl"
+            app:argType="string" />
+        <argument
             android:name="lessonTitle"
             app:argType="string" />
     </fragment>

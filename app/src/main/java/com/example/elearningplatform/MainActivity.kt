@@ -20,31 +20,26 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        // ↓ NavHost & controller
         val navHost =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHost.navController
 
-        // Inflate the XML graph, then pick the true entry point
-        val graph = navController.navInflater.inflate(R.navigation.nav_graph)
-        graph.setStartDestination(          // <-- use the setter
-            if (FirebaseAuth.getInstance().currentUser != null)
-                R.id.homeFragment           // already signed‑in
-            else
-                R.id.loginFragment          // first‑time / signed‑out
-        )
-        navController.graph = graph
+        /* create & assign the graph **only once** (first launch) */
+        if (savedInstanceState == null) {
+            val graph = navController.navInflater.inflate(R.navigation.nav_graph)
+            graph.setStartDestination(
+                if (FirebaseAuth.getInstance().currentUser != null) R.id.homeFragment
+                else R.id.loginFragment
+            )
+            navController.graph = graph
+        }
 
-        // Hook the ActionBar up *after* the graph is assigned
         NavigationUI.setupActionBarWithNavController(this, navController)
 
-        // Hide toolbar on Login / Register
         navController.addOnDestinationChangedListener { _, dest, _ ->
             binding.toolbar.visibility =
-                if (dest.id == R.id.loginFragment || dest.id == R.id.registerFragment)
-                    View.GONE
-                else
-                    View.GONE
+                if (dest.id == R.id.loginFragment || dest.id == R.id.registerFragment || dest.id == R.id.playerFragment) View.GONE
+                else View.VISIBLE
         }
     }
 

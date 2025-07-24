@@ -1,5 +1,6 @@
 package com.example.elearningplatform.ui.course
 
+import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.navArgs
 import com.example.elearningplatform.databinding.FragmentPlayerBinding
@@ -17,84 +19,79 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class PlayerFragment : Fragment() {
 
-    private var _binding: FragmentPlayerBinding? = null
-    private val binding get() = _binding!!
+    private var _b: FragmentPlayerBinding? = null
+    private val b get() = _b!!
     private val args: PlayerFragmentArgs by navArgs()
 
+    /* --------------------------------------------------------------------- */
+    /* lifecycle                                                             */
+    /* --------------------------------------------------------------------- */
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        i: LayoutInflater, c: ViewGroup?, s: Bundle?
     ): View {
-        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
-        return binding.root
+        _b = FragmentPlayerBinding.inflate(i, c, false)
+        return b.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        // ── UI title ──────────────────────────────────────────────────────────────
-        requireActivity().title = args.lessonTitle
+    override fun onViewCreated(v: View, s: Bundle?) {
+        // 1. Force device to LANDSCAPE immediately
+        requireActivity().requestedOrientation =
+            ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
 
-        // ── YouTubePlayerView setup ───────────────────────────────────────────────
-        val ytView = binding.youtubePlayerView
-        lifecycle.addObserver(ytView)   // let the player follow fragment lifecycle
+        // 2. Hide the app bar for true full-screen
+        (requireActivity() as AppCompatActivity).supportActionBar?.hide()
 
-        // Extract the video‑ID from any youtu.be or youtube.com URL
-        // PlayerFragment.kt, in onViewCreated()
-        Log.d("PlayerFragment", "🔥 lessonId raw = '${args.lessonId}'")
-        val videoId = args.lessonId.extractYoutubeIdOrNull()
+        // 3. Video setup
+        lifecycle.addObserver(b.youtubePlayerView)
+
+        val raw = args.videoUrl
+        Log.d("PlayerFragment", "🔥 videoUrl raw = '$raw'")
+        val videoId = raw.extractYoutubeIdOrNull()
         Log.d("PlayerFragment", "🔥 extracted = $videoId")
 
         if (videoId == null) {
-            Toast.makeText(requireContext(),
+            Toast.makeText(
+                requireContext(),
                 "Invalid YouTube link stored for this lesson.",
-                Toast.LENGTH_SHORT).show()
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
-        ytView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+        b.youtubePlayerView.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(player: YouTubePlayer) {
-                player.loadVideo(videoId, /* startSeconds = */ 0f)
+                player.loadVideo(videoId, 0f)
             }
         })
     }
 
+    /** Restore portrait + toolbar once the user leaves the player */
     override fun onDestroyView() {
-        binding.youtubePlayerView.release()   // always safe
-        _binding = null
+        requireActivity().requestedOrientation =
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        (requireActivity() as AppCompatActivity).supportActionBar?.show()
+
+        b.youtubePlayerView.release()
+        _b = null
         super.onDestroyView()
     }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Helper extension: pull the 11‑char ID from any common YouTube URL or ID    */
-/* -------------------------------------------------------------------------- */
+/* ---------------------------- helper ------------------------------------ */
 private fun String.extractYoutubeIdOrNull(): String? {
-    val idRegex = Regex("^[A-Za-z0-9_-]{11}$")
-    val candidate = trim()
+    val idRx = Regex("^[A-Za-z0-9_-]{11}$")
+    val s = trim()
+    if (idRx.matches(s)) return s
 
-    // 1. Already just an ID?
-    if (idRegex.matches(candidate)) return candidate
+    val uri = runCatching { Uri.parse(s) }.getOrNull() ?: return null
+    uri.getQueryParameter("v")?.let { if (idRx.matches(it)) return it }
 
-    // 2. Try to parse as a URI
-    val uri = try { Uri.parse(candidate) } catch (_: Exception) { return null }
-
-    // 2a. Regular watch URLs: …/watch?v=xxxx
-    uri.getQueryParameter("v")?.let { if (idRegex.matches(it)) return it }
-
-    // 2b. Short links, embed, shorts, etc.
-    val segments = uri.pathSegments
-    if (segments.isNotEmpty()) {
-        // youtu.be/xxxx
-        if (uri.host?.contains("youtu.be") == true && idRegex.matches(segments[0]))
-            return segments[0]
-
-        // …/embed/xxxx  or  …/v/xxxx  or  …/shorts/xxxx
-        val keyIdx = segments.indexOfFirst { it in listOf("embed", "v", "vi", "shorts") }
-        if (keyIdx != -1 && keyIdx + 1 < segments.size) {
-            val possibleId = segments[keyIdx + 1]
-            if (idRegex.matches(possibleId)) return possibleId
-        }
+    val seg = uri.pathSegments
+    if (seg.isNotEmpty()) {
+        if (uri.host?.contains("youtu.be") == true && idRx.matches(seg[0])) return seg[0]
+        val idx = seg.indexOfFirst { it in listOf("embed", "v", "vi", "shorts") }
+        if (idx != -1 && idx + 1 < seg.size && idRx.matches(seg[idx + 1])) return seg[idx + 1]
     }
-
-    return null // nothing matched
+    return null
 }
