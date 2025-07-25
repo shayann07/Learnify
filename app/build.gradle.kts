@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
-    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
+    id("com.google.devtools.ksp") version "2.0.0-1.0.21"
 }
 
 hilt {
